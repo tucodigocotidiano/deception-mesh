@@ -286,7 +286,7 @@ Si prefieres algo más directo, puedes dejar una sección simple como esta:
 ```md
 También puedes apoyar este trabajo aquí:
 
-- PayPal: https://www.paypal.com/paypalme/topassky
+- PayPal: paypal.me/topassky.
 - Nequi: 3004936297
 - Más proyectos: https://tucodigocotidiano.yarumaltech.com/proyectos/
 ```
@@ -304,7 +304,7 @@ Si **Deception Mesh** te resultó útil, te ahorró tiempo o quieres apoyar su e
 
 También puedes apoyar este trabajo aquí:
 
-- PayPal: https://www.paypal.com/paypalme/topassky
+- PayPal: paypal.me/topassky.
 - Nequi: 3004936297
 - Sitio web: https://tucodigocotidiano.yarumaltech.com/proyectos/
 ```
