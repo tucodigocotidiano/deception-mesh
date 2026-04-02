@@ -326,7 +326,7 @@ git commit -m "feat: initial public version of deception mesh MVP"
 Si quieres asociarlo a GitHub:
 
 ```bash
-git remote add origin <TU_REPO_GITHUB>
+git remote add origin https://github.com/tucodigocotidiano/deception-mesh.git
 git branch -M main
 git push -u origin main
 ```
