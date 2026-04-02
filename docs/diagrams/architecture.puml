@@ -1,0 +1,24 @@
+@startuml
+title Deception Mesh — Arquitectura (MVP)
+
+actor "Atacante / Scanner" as A
+
+node "Red del Cliente" {
+  component "Sensor Agent\n(Honeypots + Collector)" as S
+}
+
+node "Control Plane" {
+  component "API\n(Ingest + Auth + RBAC)" as API
+  database "Postgres\n(Events, Tenants, Sensors)" as DB
+  component "Dashboard / UI" as UI
+  component "Webhook Dispatcher\n(Retries + Backoff)" as WH
+}
+
+A --> S : Toca señuelo\n(SSH/HTTP)
+S --> API : HTTPS Events + Heartbeat\n(TLS, token)
+API --> DB : Persistencia
+DB --> UI : Consulta / filtros
+API --> WH : Evento/Alerta
+WH --> "SIEM/SOAR\n(Webhook del cliente)" : POST JSON versionado
+
+@enduml

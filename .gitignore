@@ -1,0 +1,33 @@
+# Build artifacts
+/target
+**/*.rs.bk
+
+# IDE / OS
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+
+# Local env / secrets
+.env
+.env.*
+!.env.production.example
+
+# Runtime / generated state
+deploy/runtime/*.toml
+!deploy/runtime/.gitkeep
+deploy/runtime/*.json
+deploy/runtime/*.state.json
+.tmp/
+ci-artifacts/
+
+# Logs / exports
+*.log
+quickstart_events.csv
+demo_events.csv
+/tmp/
+
+# Python cache
+__pycache__/
+**/__pycache__/
+*.pyc

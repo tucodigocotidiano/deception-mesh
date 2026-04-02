@@ -1,0 +1,33 @@
+@startuml
+title Deception Mesh — Despliegue (MVP)
+
+node "Cliente (On-Prem / Cloud)" as CLIENTE {
+  node "Host Sensor" as HOST {
+    artifact "sensor_agent\n(Docker/VM)" as SA
+  }
+}
+
+note right of SA
+  Expone señuelos:
+  - SSH (22/2222)
+  - HTTP/HTTPS (80/443/8080/8443)
+end note
+
+cloud "Internet / WAN" as WAN
+
+node "Tu Infra / VPS" as VPS {
+  node "Reverse Proxy\n(opcional)" as RP
+  node "Control Plane" as CP {
+    artifact "control_plane_api" as CPA
+    database "Postgres" as PG
+    artifact "web_ui\n(opcional)" as WEB
+  }
+}
+
+SA --> WAN : Telemetría HTTPS
+WAN --> RP : 443/TLS
+RP --> CPA : HTTP interno
+CPA --> PG : SQL
+WEB --> CPA : API calls
+
+@enduml

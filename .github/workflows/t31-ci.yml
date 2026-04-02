@@ -1,0 +1,88 @@
+name: T31 CI
+
+on:
+  push:
+    branches:
+      - main
+      - master
+      - develop
+  pull_request:
+    branches:
+      - main
+      - master
+      - develop
+  workflow_dispatch:
+
+concurrency:
+  group: t31-ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  CARGO_TERM_COLOR: always
+  DOCKER_BUILDKIT: "1"
+  COMPOSE_DOCKER_CLI_BUILD: "1"
+
+jobs:
+  t31-suite:
+    name: T31 product suite
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Force LF on runner
+        run: |
+          git config --global core.autocrlf false
+          git config --global core.eol lf
+
+      - name: Ensure scripts are executable
+        run: |
+          find scripts -type f -name "*.sh" -exec chmod +x {} \;
+          find scripts -type f -name "*.py" -exec chmod +x {} \;
+
+      - name: Install Rust stable + components
+        run: |
+          rustup toolchain install stable --profile minimal --component rustfmt --component clippy
+          rustup default stable
+          rustc -Vv
+          cargo -V
+
+      - name: Cache Cargo registry/git/target
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-cargo-
+
+      - name: Show Docker versions
+        run: |
+          docker version
+          docker compose version
+
+      - name: Run T31 suite
+        run: bash scripts/run_t31_suite.sh
+
+      - name: Collect failure artifacts
+        if: failure()
+        run: |
+          mkdir -p ci-artifacts
+          docker compose ps > ci-artifacts/docker-compose-ps.txt || true
+          docker compose logs --no-color > ci-artifacts/docker-compose.log || true
+          find /tmp -maxdepth 1 -type d -name 'deceptionmesh_*' -exec cp -R {} ci-artifacts/ \; || true
+
+      - name: Upload failure artifacts
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: t31-ci-artifacts
+          path: ci-artifacts
+          if-no-files-found: ignore

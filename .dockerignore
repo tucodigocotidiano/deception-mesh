@@ -1,0 +1,16 @@
+target
+.git
+.github
+.idea
+.vscode
+ci-artifacts
+.tmp
+*.log
+.env
+.env.*
+!/.env.production.example
+deploy/runtime/*.toml
+deploy/runtime/*.json
+deploy/runtime/*.state.json
+quickstart_events.csv
+demo_events.csv

@@ -1,0 +1,25 @@
+[sensor]
+tenant_id = "00000000-0000-0000-0000-000000000001"
+sensor_id = "00000000-0000-0000-0000-000000000002"
+sensor_token = "dm_sensor_REPLACE_ME"
+
+[control_plane]
+base_url = "https://control-plane.example.com"
+heartbeat_path = "/sensors/{sensor_id}/heartbeat"
+ingest_path = "/events/ingest"
+request_timeout_seconds = 10
+
+[runtime]
+heartbeat_interval_seconds = 30
+max_queue = 10000
+
+[logging]
+level = "info"
+format = "pretty"
+
+[honeypots]
+ssh_listen_addr = "0.0.0.0:2222"
+ssh_banner = "OpenSSH_8.9p1 Ubuntu-3ubuntu0.10"
+http_listen_addr = "0.0.0.0:8081"
+https_listen_addr = "0.0.0.0:8443"
+http_trap_paths = ["/login", "/admin", "/wp-login.php"]

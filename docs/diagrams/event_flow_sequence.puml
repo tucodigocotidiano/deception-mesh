@@ -1,0 +1,23 @@
+@startuml
+title Deception Mesh — Flujo de Evento (MVP)
+
+actor Attacker as A
+participant "Sensor Agent" as S
+participant "Control Plane API" as API
+database "Postgres" as DB
+participant "Webhook Dispatcher" as W
+participant "SIEM/SOAR" as SIEM
+
+A -> S : Conexión SSH/HTTP al señuelo
+S -> S : Captura evidencia mínima\n(IP, ts, servicio, intentos, UA...)
+S -> API : POST /events/ingest\n(JSON v1, token)
+API -> API : Validar schema + auth + tenant
+API -> DB : INSERT event
+API -> W : Encolar entrega webhook
+W -> SIEM : POST webhook (1er intento)
+alt falla
+  W -> W : backoff + retry (>=3)
+  W -> SIEM : POST webhook (reintento)
+end
+
+@enduml
