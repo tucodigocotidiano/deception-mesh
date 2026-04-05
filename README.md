@@ -248,70 +248,29 @@ Su propósito es observar, registrar, priorizar y alertar.
 
 Más detalle en [`docs/deception-mesh-notas-de-seguridad.md`](docs/deception-mesh-notas-de-seguridad.md).
 
+---
 
 ## Apoya el proyecto
 
-Si **Deception Mesh** te resultó útil, te ayudó a aprender algo nuevo o quieres apoyar su evolución, puedes invitarme un café o hacer una donación.
+Si **Deception Mesh** te resultó útil, te ahorró tiempo, te sirvió para aprender o quieres apoyar su evolución, puedes invitarme un café o hacer una donación.
 
-Tu apoyo ayuda a sostener tiempo de investigación, documentación, pruebas en laboratorio/VPS y mejoras del proyecto.
+<p align="center">
+  <a href="https://buymeacoffee.com/topassky">
+    <img src="https://img.shields.io/badge/Buy%20me%20a%20coffee-Apoyar-FFDD00?logo=buymeacoffee&logoColor=000000" alt="Buy Me a Coffee" />
+  </a>
+</p>
 
-### Opciones de apoyo
+<p align="center">
+  <a href="https://buymeacoffee.com/topassky"><strong>Invítame un café</strong></a>
+</p>
 
-#### GitHub Sponsors
+También puedes apoyar este trabajo por otros medios:
 
-Si publicas el repositorio en GitHub y activas Sponsors, puedes dejar este bloque así:
+- **PayPal:** [paypal.me/topassky](https://paypal.me/topassky)
+- **Nequi:** `3004936297`
+- **Más proyectos:** [tucodigocotidiano.yarumaltech.com/proyectos/](https://tucodigocotidiano.yarumaltech.com/proyectos/)
 
-```md
-## Apoya el proyecto
-
-Si este proyecto te sirvió, puedes apoyar su desarrollo en GitHub Sponsors:
-
-[![GitHub Sponsors](https://img.shields.io/badge/GitHub-Sponsors-ea4aaa?logo=githubsponsors&logoColor=white)](https://github.com/sponsors/tucodigocotidiano)
-```
-
-#### Buy Me a Coffee
-
-También puedes usar una página externa:
-
-```md
-[![Buy Me a Coffee](https://img.shields.io/badge/Buy%20me%20a%20coffee-Support-FFDD00?logo=buymeacoffee&logoColor=000000)](https://buymeacoffee.com/topassky)
-```
-
-Reemplaza `TU_USUARIO` por tu identificador real.
-
-#### PayPal / Nequi / enlace personal
-
-Si prefieres algo más directo, puedes dejar una sección simple como esta:
-
-```md
-También puedes apoyar este trabajo aquí:
-
-- PayPal: paypal.me/topassky.
-- Nequi: 3004936297
-- Más proyectos: https://tucodigocotidiano.yarumaltech.com/proyectos/
-```
-
-### Bloque recomendado para este README
-
-Este es el bloque más práctico para pegar tal cual al README cuando ya tengas tus enlaces reales:
-
-```md
-## Apoya el proyecto
-
-Si **Deception Mesh** te resultó útil, te ahorró tiempo o quieres apoyar su evolución, puedes invitarme un café o hacer una donación.
-
-[![Buy Me a Coffee](https://img.shields.io/badge/Buy%20me%20a%20coffee-Support-FFDD00?logo=buymeacoffee&logoColor=000000)](https://buymeacoffee.com/topassky)
-
-También puedes apoyar este trabajo aquí:
-
-- PayPal: paypal.me/topassky.
-- Nequi: 3004936297
-- Sitio web: https://tucodigocotidiano.yarumaltech.com/proyectos/
-```
-
-### Dónde ponerlo
-
-La ubicación más recomendable es **antes de “Publicar en GitHub”** y después de la parte de seguridad/uso ético. Así no interrumpe la explicación técnica, pero sigue siendo visible para quien llegó al final del README.
+> Si prefieres, puedes dejar solo el botón de Buy Me a Coffee para mantener el README más limpio visualmente.
 
 ---
 
