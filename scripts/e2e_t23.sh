@@ -54,7 +54,7 @@ wait_for_http_200() {
   done
 
   docker compose ps >&2 || true
-  docker compose logs --no-color --tail 200 control_plane >&2 || true
+  docker logs deceptionmesh-control-plane --tail 200 >&2 || true
   die "$name no respondió 200 a tiempo"
 }
 
@@ -99,10 +99,9 @@ wait_for_http_200 "$API/health" "/health"
 wait_for_http_200 "$API/ready" "/ready"
 ok "Stack OK (/health y /ready)"
 
-CONTROL_PLANE_CID="$(docker compose ps -q control_plane | tr -d '\r')"
-[ -n "$CONTROL_PLANE_CID" ] || die "No pude detectar el contenedor de control_plane"
-
-NETWORK_NAME="$(docker inspect "$CONTROL_PLANE_CID"   --format '{{range $name, $_ := .NetworkSettings.Networks}}{{println $name}}{{end}}'   | head -n 1 | tr -d '\r')"
+NETWORK_NAME="$(docker inspect deceptionmesh-control-plane \
+  --format '{{range $name, $_ := .NetworkSettings.Networks}}{{println $name}}{{end}}' \
+  | head -n 1 | tr -d '\r')"
 
 [ -n "$NETWORK_NAME" ] || die "No pude detectar la red Docker del control_plane"
 ok "Red detectada: $NETWORK_NAME"
@@ -325,7 +324,7 @@ CRITICAL_ID="$(echo "$CRITICAL_EVENT" | jq -r .event_id)"
 
 wait_for_file_nonempty "$CAPTURE_FILE" 20 || {
   docker logs "$MOCK_CONTAINER_NAME" >&2 || true
-  docker compose logs --no-color --tail 200 control_plane >&2 || true
+  docker logs deceptionmesh-control-plane --tail 200 >&2 || true
   die "No llegó ningún webhook al receptor mock"
 }
 

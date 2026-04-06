@@ -28,16 +28,21 @@ En muchas organizaciones, el primer contacto del atacante con la infraestructura
 
 ---
 
-## Cambios de empaquetado en esta versión
+## Validación ya lograda
 
-Esta entrega quedó preparada para subirse a GitHub sin arrastrar residuos locales. Se corrigió lo siguiente:
+Durante las pruebas del proyecto se verificó que:
 
-- se eliminaron archivos generados, temporales y secretos de runtime
-- se corrigió `.gitignore`
-- se agregaron reglas de fin de línea LF para evitar errores tipo `$'\r': command not found` en Bash
-- el `docker-compose.yml` local ya **no usa `container_name` fijos**, para reducir conflictos entre entornos de prueba
-- el quickstart local ahora puede convivir mejor con puertos ocupados
-- el flujo de producción permite definir `SENSOR_CONTROL_PLANE_BASE_URL` si Docker Desktop/WSL necesita `host.docker.internal`
+- el `control_plane` y `postgres` arrancan correctamente en Docker
+- un admin puede autenticarse por JWT en producción local/VPS
+- el sensor se registra y queda visible dentro del tenant correcto
+- el `sensor_agent` mantiene heartbeat y pasa a `active`
+- los honeypots HTTP/SSH generan eventos persistidos en Postgres
+- la severidad sube por repetición en rutas trampa
+- el sistema exporta eventos a CSV
+- el pipeline de webhook funciona con reintentos
+- en una VPS se observaron toques externos reales sobre `/login`
+
+En otras palabras: **no es una maqueta vacía**. El MVP ya produce telemetría útil del mundo real.
 
 ---
 
@@ -79,9 +84,9 @@ Más detalle en [`docs/architecture.md`](docs/architecture.md).
 │   └── shared/
 ├── deploy/
 │   ├── docker/
-│   ├── runtime/
 │   ├── sensor/
-│   └── sql/
+│   ├── sql/
+│   └── runtime/
 ├── docs/
 ├── scripts/
 ├── docker-compose.yml
@@ -107,7 +112,7 @@ Más detalle en [`docs/architecture.md`](docs/architecture.md).
 - Bash
 - `curl`
 - `jq`
-- Rust estable
+- Rust estable (para desarrollo local sin Docker)
 
 ### Arranque rápido
 
@@ -169,49 +174,30 @@ bash scripts/register_production_sensor.sh "tu-correo@dominio.com" "TU_PASSWORD_
 bash scripts/production_smoke_test.sh "tu-correo@dominio.com" "TU_PASSWORD_SUPER_LARGO" "<TENANT_ID>"
 ```
 
----
+### 6) Exponer solo lo necesario
 
-## Solución rápida de problemas reales
+En una VPS, la postura mínima recomendable es:
 
-### Error `pull access denied for deceptionmesh-control-plane`
-
-No rompe el despliegue si ya construiste las imágenes locales con:
-
-```bash
-bash scripts/build_local_images.sh
-```
-
-El `deploy_production.sh` ya continúa con `up -d` usando la imagen local.
-
-### Error `$'\r': command not found` al cargar `.env.production`
-
-Eso ocurre por saltos de línea Windows. Esta versión ya fuerza LF en el repo, pero si editas el archivo con herramientas que vuelvan a meter CRLF, conviértelo otra vez a LF.
-
-### Error `Bind for 0.0.0.0:2222 failed: port is already allocated`
-
-Tienes otro proceso o contenedor usando el puerto. Libera el puerto o cambia en `.env.production`:
-
-```env
-SENSOR_SSH_PORT=3222
-SENSOR_HTTP_PORT=18081
-SENSOR_HTTPS_PORT=18443
-```
-
-### En WSL/Docker Desktop el sensor no logra hablar con el control plane
-
-Prueba en `.env.production`:
-
-```env
-SENSOR_CONTROL_PLANE_BASE_URL=http://host.docker.internal:18080
-```
+- **sí exponer** los puertos trampa del sensor si quieres capturar bots reales
+- **no exponer** Postgres a Internet
+- **no exponer** el control plane directamente si puedes ponerlo detrás de reverse proxy/TLS
+- usar `DEV_ALLOW_X_USER_ID=0` en producción
 
 ---
 
 ## Consultas operativas útiles
 
-Las consultas operativas quedaron documentadas en:
+Las consultas que nacieron de la validación real quedaron organizadas en:
 
 - [`docs/consultas-operativas.md`](docs/consultas-operativas.md)
+
+Ese documento sirve para responder cosas como:
+
+- qué IPs tocaron el sensor
+- qué rutas fueron golpeadas
+- qué intentos son internos vs externos
+- cuál fue la última vez que una IP apareció
+- qué evidencia SSH y HTTP quedó registrada
 
 ---
 
@@ -225,11 +211,64 @@ bash scripts/run_t31_suite.sh
 
 ### CI incluida
 
-El repositorio incluye workflows para:
+El repositorio ya contiene workflows para:
 
 - `fmt + clippy + test`
 - suite `T31`
 - publicación de imágenes Docker por tag
+
+Revisa `.github/workflows/`.
+
+---
+
+## Decisiones de diseño: complejidad computacional y complejidad de Kolmogorov
+
+Este repositorio se reorganizó para dejar una narrativa más compacta y una base más mantenible.
+
+### 1. Optimización de complejidad computacional
+
+La arquitectura favorece operaciones lineales o casi lineales sobre el flujo principal:
+
+- el sensor captura un evento y lo reporta sin procesamiento pesado local
+- el control plane aplica reglas simples de severidad en vez de pipelines costosos de ML
+- el almacenamiento relacional permite filtros, agregaciones y exportación con costo razonable para un MVP
+- el worker de webhook desacopla ingestión de entrega, evitando bloquear la ruta crítica
+
+### 2. Optimización de complejidad de Kolmogorov
+
+Se redujo la longitud descriptiva necesaria para entender el proyecto:
+
+- un único `README.md` como punto de entrada
+- documentación especializada pero no dispersa
+- separación clara entre quickstart, runbook, arquitectura y consultas
+- eliminación de archivos ad hoc y ruido local del paquete final
+- normalización de nombres y rutas para que el proyecto “se explique solo”
+
+### 3. Unificación de ideas redundantes
+
+Se concentró cada tema donde aporta más valor:
+
+- **README** → visión global, instalación y mapa del proyecto
+- **quickstart** → receta mínima reproducible
+- **runbook** → operación del MVP
+- **notas de seguridad** → límites, riesgos y postura ética
+- **consultas operativas** → inspección real de evidencia
+
+El objetivo fue que cada documento tenga una función única y que no compita con los demás.
+
+---
+
+## Limitaciones actuales
+
+Este repositorio **no pretende vender humo**. El estado real del MVP es:
+
+- sí captura evidencia útil
+- sí permite triage básico
+- sí soporta multi-tenant, severidad y webhooks
+- **no** es todavía un SIEM completo
+- **no** implementa retención automática madura por tenant
+- **no** incluye bloqueo activo ni respuesta ofensiva
+- **no** debe desplegarse como producto enterprise endurecido sin cerrar primero los pendientes operativos
 
 ---
 
@@ -244,37 +283,32 @@ No debe utilizarse para:
 - payloads ofensivos
 - recolección invasiva innecesaria
 
-Su propósito es observar, registrar, priorizar y alertar.
+Su propósito es:
+
+- observar
+- registrar
+- priorizar
+- alertar
+- integrar con otras herramientas defensivas
 
 Más detalle en [`docs/deception-mesh-notas-de-seguridad.md`](docs/deception-mesh-notas-de-seguridad.md).
 
 ---
 
-## Apoya el proyecto
+## Documentación disponible
 
-Si **Deception Mesh** te resultó útil, te ahorró tiempo, te sirvió para aprender o quieres apoyar su evolución, puedes invitarme un café o hacer una donación.
-
-<p align="center">
-  <a href="https://buymeacoffee.com/topassky">
-    <img src="https://img.shields.io/badge/Buy%20me%20a%20coffee-Apoyar-FFDD00?logo=buymeacoffee&logoColor=000000" alt="Buy Me a Coffee" />
-  </a>
-</p>
-
-<p align="center">
-  <a href="https://buymeacoffee.com/topassky"><strong>Invítame un café</strong></a>
-</p>
-
-También puedes apoyar este trabajo por otros medios:
-
-- **PayPal:** [paypal.me/topassky](https://paypal.me/topassky)
-- **Nequi:** `3004936297`
-- **Más proyectos:** [tucodigocotidiano.yarumaltech.com/proyectos/](https://tucodigocotidiano.yarumaltech.com/proyectos/)
-
-> Si prefieres, puedes dejar solo el botón de Buy Me a Coffee para mantener el README más limpio visualmente.
+- [`docs/architecture.md`](docs/architecture.md)
+- [`docs/mvp_scope.md`](docs/mvp_scope.md)
+- [`docs/quickstart.md`](docs/quickstart.md)
+- [`docs/deception-mesh-runbook-operativo.md`](docs/deception-mesh-runbook-operativo.md)
+- [`docs/deception-mesh-notas-de-seguridad.md`](docs/deception-mesh-notas-de-seguridad.md)
+- [`docs/consultas-operativas.md`](docs/consultas-operativas.md)
 
 ---
 
 ## Publicar en GitHub
+
+Antes de subir el repositorio:
 
 ```bash
 git init
@@ -285,7 +319,7 @@ git commit -m "feat: initial public version of deception mesh MVP"
 Si quieres asociarlo a GitHub:
 
 ```bash
-git remote add origin https://github.com/tucodigocotidiano/deception-mesh.git
+git remote add origin <TU_REPO_GITHUB>
 git branch -M main
 git push -u origin main
 ```

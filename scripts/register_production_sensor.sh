@@ -34,22 +34,13 @@ if [ ! -f "$ENV_FILE" ]; then
   exit 1
 fi
 
-load_env_file() {
-  local tmp_env
-  tmp_env="$(mktemp)"
-  tr -d '\r' < "$ENV_FILE" > "$tmp_env"
-  # shellcheck disable=SC1090
-  set -a
-  source "$tmp_env"
-  set +a
-  rm -f "$tmp_env"
-}
-
-load_env_file
+# shellcheck disable=SC1090
+set -a
+source "$ENV_FILE"
+set +a
 
 COMPOSE=(docker compose --env-file "$ENV_FILE" -f "$COMPOSE_FILE")
 BASE_URL="http://127.0.0.1:${CONTROL_PLANE_HOST_PORT:-18080}"
-SENSOR_CONTROL_PLANE_BASE_URL="${SENSOR_CONTROL_PLANE_BASE_URL:-http://control_plane:8080}"
 
 echo "==> Asegurando control_plane arriba"
 "${COMPOSE[@]}" up -d postgres control_plane
@@ -96,7 +87,7 @@ sensor_id = "$SENSOR_ID"
 sensor_token = "$SENSOR_TOKEN"
 
 [control_plane]
-base_url = "$SENSOR_CONTROL_PLANE_BASE_URL"
+base_url = "http://control_plane:8080"
 heartbeat_path = "/sensors/{sensor_id}/heartbeat"
 ingest_path = "/events/ingest"
 request_timeout_seconds = 10
@@ -122,7 +113,7 @@ echo "✅ sensor.production.toml generado en:"
 echo "$OUTPUT_FILE"
 echo
 echo "==> Levantando sensor_agent"
-"${COMPOSE[@]}" up -d --force-recreate sensor_agent
+"${COMPOSE[@]}" up -d sensor_agent
 
 echo
 echo "Sensor ID:    $SENSOR_ID"

@@ -1,0 +1,12 @@
+{
+  "tenant_id": "42ff446d-6c34-4375-8afe-d0f6abb7b642",
+  "tenant_name": "Quickstart Tenant 1775484330",
+  "sensor_id": "d0a63277-3796-4b25-90b0-955546c9a2bf",
+  "sensor_name": "sensor-mvp-local",
+  "admin_user_id": "11111111-1111-1111-1111-111111111111",
+  "admin_email": "quickstart-admin-11111111-1111-1111-1111-111111111111@local.invalid",
+  "last_seen": "2026-04-06 14:06:40.63733+00",
+  "config_file": "/mnt/c/Users/felipe/Desktop/Telecomunicaciones/Seguridad infromatica/proyectos/Deception Mesh/deploy/runtime/sensor.toml",
+  "control_plane_url": "http://127.0.0.1:8080",
+  "control_plane_internal_url": "http://control_plane:8080"
+}

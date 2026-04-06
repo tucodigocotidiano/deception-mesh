@@ -25,25 +25,16 @@ require_cmd() {
 
 require_cmd docker
 require_cmd python3
-require_cmd curl
 
 if [ ! -f "$ENV_FILE" ]; then
   echo "Falta $ENV_FILE" >&2
   exit 1
 fi
 
-load_env_file() {
-  local tmp_env
-  tmp_env="$(mktemp)"
-  tr -d '\r' < "$ENV_FILE" > "$tmp_env"
-  # shellcheck disable=SC1090
-  set -a
-  source "$tmp_env"
-  set +a
-  rm -f "$tmp_env"
-}
-
-load_env_file
+# shellcheck disable=SC1090
+set -a
+source "$ENV_FILE"
+set +a
 
 COMPOSE=(docker compose --env-file "$ENV_FILE" -f "$COMPOSE_FILE")
 

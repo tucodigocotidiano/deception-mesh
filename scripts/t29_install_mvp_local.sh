@@ -6,16 +6,14 @@ RUNTIME_DIR="$ROOT_DIR/deploy/runtime"
 CONFIG_FILE="$RUNTIME_DIR/sensor.toml"
 STATE_FILE="$RUNTIME_DIR/quickstart.state.json"
 
-DEFAULT_CP_PORT="${QUICKSTART_CONTROL_PLANE_HOST_PORT:-8080}"
-DEFAULT_SSH_PORT="${QUICKSTART_SENSOR_SSH_PORT:-2222}"
-DEFAULT_HTTP_PORT="${QUICKSTART_SENSOR_HTTP_PORT:-8081}"
-DEFAULT_HTTPS_PORT="${QUICKSTART_SENSOR_HTTPS_PORT:-8443}"
+API_BASE_URL="${QUICKSTART_API_BASE_URL:-http://127.0.0.1:8080}"
+CONTROL_PLANE_INTERNAL_URL="${QUICKSTART_CONTROL_PLANE_INTERNAL_URL:-http://control_plane:8080}"
 
 ADMIN_USER_ID="${QUICKSTART_ADMIN_USER_ID:-11111111-1111-1111-1111-111111111111}"
 ADMIN_EMAIL="${QUICKSTART_ADMIN_EMAIL:-quickstart-admin-${ADMIN_USER_ID}@local.invalid}"
+
 TENANT_NAME="${QUICKSTART_TENANT_NAME:-Quickstart Tenant $(date +%s)}"
 SENSOR_NAME="${QUICKSTART_SENSOR_NAME:-sensor-mvp-local}"
-CONTROL_PLANE_INTERNAL_URL="${QUICKSTART_CONTROL_PLANE_INTERNAL_URL:-http://control_plane:8080}"
 
 SSH_LISTEN_ADDR="${QUICKSTART_SSH_LISTEN_ADDR:-0.0.0.0:2222}"
 HTTP_LISTEN_ADDR="${QUICKSTART_HTTP_LISTEN_ADDR:-0.0.0.0:8081}"
@@ -29,45 +27,9 @@ require_cmd() {
   command -v "$1" >/dev/null 2>&1 || die "Falta dependencia: $1"
 }
 
-port_in_use() {
-  python3 - "$1" <<'PY'
-import socket, sys
-port = int(sys.argv[1])
-for family, host in ((socket.AF_INET, '127.0.0.1'), (socket.AF_INET6, '::1')):
-    try:
-        s = socket.socket(family, socket.SOCK_STREAM)
-        s.settimeout(0.2)
-        s.connect((host, port))
-    except OSError:
-        pass
-    else:
-        s.close()
-        raise SystemExit(0)
-raise SystemExit(1)
-PY
-}
-
-choose_port() {
-  local preferred="$1"
-  shift
-
-  if ! port_in_use "$preferred"; then
-    echo "$preferred"
-    return 0
-  fi
-
-  for candidate in "$@"; do
-    if ! port_in_use "$candidate"; then
-      echo "$candidate"
-      return 0
-    fi
-  done
-
-  die "No encontré puerto libre para base $preferred"
-}
-
 http_code() {
-  curl -sS -o /dev/null -w "%{http_code}" "$1" || true
+  local url="$1"
+  curl -sS -o /dev/null -w "%{http_code}" "$url" || true
 }
 
 wait_for_http_200() {
@@ -90,6 +52,11 @@ sql_escape() {
   printf "%s" "$1" | sed "s/'/''/g"
 }
 
+psql_exec() {
+  docker exec -i deceptionmesh-postgres \
+    psql -U deception -d deception_mesh -v ON_ERROR_STOP=1 "$@"
+}
+
 json_field() {
   local json="$1"
   local filter="$2"
@@ -104,20 +71,6 @@ docker compose version >/dev/null 2>&1 || die "No está disponible docker compos
 
 mkdir -p "$RUNTIME_DIR"
 
-LOCAL_CONTROL_PLANE_HOST_PORT="$(choose_port "$DEFAULT_CP_PORT" 18080 28080 38080)"
-LOCAL_SENSOR_SSH_PORT="$(choose_port "$DEFAULT_SSH_PORT" 2223 3222 4222)"
-LOCAL_SENSOR_HTTP_PORT="$(choose_port "$DEFAULT_HTTP_PORT" 18081 28081 38081)"
-LOCAL_SENSOR_HTTPS_PORT="$(choose_port "$DEFAULT_HTTPS_PORT" 18443 28443 38443)"
-
-export LOCAL_CONTROL_PLANE_HOST_PORT LOCAL_SENSOR_SSH_PORT LOCAL_SENSOR_HTTP_PORT LOCAL_SENSOR_HTTPS_PORT
-API_BASE_URL="http://127.0.0.1:${LOCAL_CONTROL_PLANE_HOST_PORT}"
-
-psql_exec() {
-  docker compose exec -T postgres \
-    psql -U deception -d deception_mesh -v ON_ERROR_STOP=1 "$@"
-}
-
-info "Puertos elegidos: control_plane=$LOCAL_CONTROL_PLANE_HOST_PORT ssh=$LOCAL_SENSOR_SSH_PORT http=$LOCAL_SENSOR_HTTP_PORT https=$LOCAL_SENSOR_HTTPS_PORT"
 info "Levantando stack base del control plane"
 (
   cd "$ROOT_DIR"
@@ -285,11 +238,7 @@ cat > "$STATE_FILE" <<EOF
   "last_seen": "$LAST_SEEN",
   "config_file": "$CONFIG_FILE",
   "control_plane_url": "$API_BASE_URL",
-  "control_plane_internal_url": "$CONTROL_PLANE_INTERNAL_URL",
-  "local_control_plane_host_port": "$LOCAL_CONTROL_PLANE_HOST_PORT",
-  "local_sensor_ssh_port": "$LOCAL_SENSOR_SSH_PORT",
-  "local_sensor_http_port": "$LOCAL_SENSOR_HTTP_PORT",
-  "local_sensor_https_port": "$LOCAL_SENSOR_HTTPS_PORT"
+  "control_plane_internal_url": "$CONTROL_PLANE_INTERNAL_URL"
 }
 EOF
 
@@ -304,9 +253,9 @@ Config file: $CONFIG_FILE
 State file:  $STATE_FILE
 
 Pruebas manuales sugeridas:
-  curl http://localhost:${LOCAL_SENSOR_HTTP_PORT}/login
-  curl http://localhost:${LOCAL_SENSOR_HTTP_PORT}/admin
-  ssh demo@localhost -p ${LOCAL_SENSOR_SSH_PORT}
+  curl http://localhost:8081/login
+  curl http://localhost:8081/admin
+  ssh demo@localhost -p 2222
 
 Consulta de sensores:
   curl -H "x-user-id: $ADMIN_USER_ID" "$API_BASE_URL/v1/tenants/$TENANT_ID/sensors"

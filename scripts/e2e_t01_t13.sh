@@ -215,7 +215,7 @@ RC="$(http_code -i "$API/ready")"
 ok "T04 OK (stack arriba + health/ready 200)"
 
 info "Logs (control plane tail):"
-docker compose logs --no-color --tail 20 control_plane || true
+docker logs deceptionmesh-control-plane --tail 20 || true
 
 DB_URL="$(docker compose exec -T control_plane printenv DATABASE_URL | tr -d '\r')"
 DB_NAME="$(echo "$DB_URL" | sed -E 's#.*/##')"

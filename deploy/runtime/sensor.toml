@@ -1,0 +1,25 @@
+[sensor]
+tenant_id = "42ff446d-6c34-4375-8afe-d0f6abb7b642"
+sensor_id = "d0a63277-3796-4b25-90b0-955546c9a2bf"
+sensor_token = "dm_sensor_0424fd433f5a4acb97cfd804d88c8b96"
+
+[control_plane]
+base_url = "http://control_plane:8080"
+heartbeat_path = "/sensors/{sensor_id}/heartbeat"
+ingest_path = "/events/ingest"
+request_timeout_seconds = 10
+
+[runtime]
+heartbeat_interval_seconds = 5
+max_queue = 10000
+
+[logging]
+level = "info"
+format = "pretty"
+
+[honeypots]
+ssh_listen_addr = "0.0.0.0:2222"
+ssh_banner = "OpenSSH_8.9p1 Ubuntu-3ubuntu0.10"
+http_listen_addr = "0.0.0.0:8081"
+https_listen_addr = ""
+http_trap_paths = ["/login", "/admin", "/wp-login.php"]

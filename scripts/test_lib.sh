@@ -85,7 +85,7 @@ wait_for_http_200() {
   done
 
   docker compose ps >&2 || true
-  docker compose logs --no-color --tail 200 control_plane >&2 || true
+  docker logs deceptionmesh-control-plane --tail 200 >&2 || true
   die "$name no respondió 200 a tiempo"
 }
 

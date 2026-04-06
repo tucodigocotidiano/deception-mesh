@@ -1,14 +1,12 @@
 target
 .git
+.gitignore
 .github
-.idea
-.vscode
 ci-artifacts
-.tmp
+tmp
 *.log
 .env
 .env.*
-!/.env.production.example
 deploy/runtime/*.toml
 deploy/runtime/*.json
 deploy/runtime/*.state.json
