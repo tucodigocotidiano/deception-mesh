@@ -146,6 +146,7 @@ Más detalle en [`docs/quickstart.md`](docs/quickstart.md).
 ```bash
 cp .env.production.example .env.production
 nano .env.production
+sed -i 's/\r$//' .env.production
 bash scripts/prepare_sql_prod.sh
 bash scripts/build_local_images.sh
 ```
