@@ -1,7 +1,7 @@
 [sensor]
-tenant_id = "0711a8a0-a8ee-445c-b205-fab5534b3a1a"
-sensor_id = "6096e54d-d385-461b-b092-c78c8c2cebd2"
-sensor_token = "dm_sensor_d36feeb9b376458f9266ddd02c119e64"
+tenant_id = "382fcc8e-e04b-48b7-87a9-2bf73334a2f8"
+sensor_id = "1d89e942-1a69-4dfc-a556-ceaad5160203"
+sensor_token = "dm_sensor_5d229b1064b9408484c652b92a8f8a16"
 
 [control_plane]
 base_url = "http://control_plane:8080"
@@ -10,7 +10,7 @@ ingest_path = "/events/ingest"
 request_timeout_seconds = 10
 
 [runtime]
-heartbeat_interval_seconds = 5
+heartbeat_interval_seconds = 15
 max_queue = 10000
 
 [logging]

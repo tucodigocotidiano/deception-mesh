@@ -220,44 +220,6 @@ El repositorio ya contiene workflows para:
 
 Revisa `.github/workflows/`.
 
----
-
-## Decisiones de diseño: complejidad computacional y complejidad de Kolmogorov
-
-Este repositorio se reorganizó para dejar una narrativa más compacta y una base más mantenible.
-
-### 1. Optimización de complejidad computacional
-
-La arquitectura favorece operaciones lineales o casi lineales sobre el flujo principal:
-
-- el sensor captura un evento y lo reporta sin procesamiento pesado local
-- el control plane aplica reglas simples de severidad en vez de pipelines costosos de ML
-- el almacenamiento relacional permite filtros, agregaciones y exportación con costo razonable para un MVP
-- el worker de webhook desacopla ingestión de entrega, evitando bloquear la ruta crítica
-
-### 2. Optimización de complejidad de Kolmogorov
-
-Se redujo la longitud descriptiva necesaria para entender el proyecto:
-
-- un único `README.md` como punto de entrada
-- documentación especializada pero no dispersa
-- separación clara entre quickstart, runbook, arquitectura y consultas
-- eliminación de archivos ad hoc y ruido local del paquete final
-- normalización de nombres y rutas para que el proyecto “se explique solo”
-
-### 3. Unificación de ideas redundantes
-
-Se concentró cada tema donde aporta más valor:
-
-- **README** → visión global, instalación y mapa del proyecto
-- **quickstart** → receta mínima reproducible
-- **runbook** → operación del MVP
-- **notas de seguridad** → límites, riesgos y postura ética
-- **consultas operativas** → inspección real de evidencia
-
-El objetivo fue que cada documento tenga una función única y que no compita con los demás.
-
----
 
 ## Limitaciones actuales
 
@@ -307,6 +269,32 @@ Más detalle en [`docs/deception-mesh-notas-de-seguridad.md`](docs/deception-mes
 
 ---
 
+---
+
+## Apoya el proyecto
+
+Si **Deception Mesh** te resultó útil, te ahorró tiempo, te sirvió para aprender o quieres apoyar su evolución, puedes invitarme un café o hacer una donación.
+
+<p align="center">
+  <a href="https://buymeacoffee.com/topassky">
+    <img src="https://img.shields.io/badge/Buy%20me%20a%20coffee-Apoyar-FFDD00?logo=buymeacoffee&logoColor=000000" alt="Buy Me a Coffee" />
+  </a>
+</p>
+
+<p align="center">
+  <a href="https://buymeacoffee.com/topassky"><strong>Invítame un café</strong></a>
+</p>
+
+También puedes apoyar este trabajo por otros medios:
+
+- **PayPal:** [paypal.me/topassky](https://paypal.me/topassky)
+- **Nequi:** `3004936297`
+- **Más proyectos:** [tucodigocotidiano.yarumaltech.com/proyectos/](https://tucodigocotidiano.yarumaltech.com/proyectos/)
+
+> Si prefieres, puedes dejar solo el botón de Buy Me a Coffee para mantener el README más limpio visualmente.
+
+---
+
 ## Publicar en GitHub
 
 Antes de subir el repositorio:
@@ -320,7 +308,7 @@ git commit -m "feat: initial public version of deception mesh MVP"
 Si quieres asociarlo a GitHub:
 
 ```bash
-git remote add origin <TU_REPO_GITHUB>
+git remote add origin https://github.com/tucodigocotidiano/deception-mesh
 git branch -M main
 git push -u origin main
 ```
